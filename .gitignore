@@ -1,25 +1,52 @@
+# Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter Notebooks
 .ipynb_checkpoints/
 *.ipynb
+
+# Virtual environments
 .env
 .venv
 venv/
+env/
+
+# API keys
 *.env
 .env.*
 secrets.py
+
+# Data — raw PDFs and processed files (large binary files)
 data/raw/*.pdf
 data/processed/*.pkl
 data/processed/*.npy
 data/processed/*.faiss
+
+# ChromaDB local store
 chroma_db/
 *.chroma
+
+# MLflow artifacts
 mlruns/
 mlartifacts/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# IDE
 .vscode/
 .idea/
 *.swp
+
+# Logs
 *.log
 logs/

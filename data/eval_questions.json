@@ -1,0 +1,218 @@
+{
+  "metadata": {
+    "purpose": "RAG evaluation question set for Thai Bank Financial Q&A System",
+    "total_questions": 25,
+    "val_count": 15,
+    "test_count": 10,
+    "created": "2026-06-03",
+    "rule": "Val set used for tuning only. Test set used ONCE for final RAGAS scores in NB04. Do not tune any parameter based on test questions.",
+    "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+    "question_types": ["single_bank", "cross_bank", "trend", "regulatory"]
+  },
+
+  "val": [
+    {
+      "id": "V01",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["BBL"],
+      "question": "What was BBL's NPL ratio at the end of 2025?",
+      "expected_answer": "BBL's NPL ratio was 2.98% at the end of 2025."
+    },
+    {
+      "id": "V02",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["KBANK"],
+      "question": "What was KBANK's net profit for the full year 2025?",
+      "expected_answer": "KBANK's net profit for the full year 2025 was 49,565 million THB."
+    },
+    {
+      "id": "V03",
+      "type": "single_bank",
+      "difficulty": "medium",
+      "banks": ["TTB"],
+      "question": "What was TTB's Common Equity Tier 1 (CET1) capital ratio as of end 2025?",
+      "expected_answer": "TTB's Common Equity Tier 1 (CET1) capital ratio was 17.5% as of end 2025."
+    },
+    {
+      "id": "V04",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["TISCO"],
+      "question": "What was TISCO Financial Group's return on equity (ROE) in 2025?",
+      "expected_answer": "TISCO Financial Group's return on equity (ROE) was 15.4% in 2025."
+    },
+    {
+      "id": "V05",
+      "type": "single_bank",
+      "difficulty": "medium",
+      "banks": ["LHFG"],
+      "question": "What were LHFG's total assets at the end of 2025?",
+      "expected_answer": "LHFG's total assets were 398,811 million THB at the end of 2025."
+    },
+    {
+      "id": "V06",
+      "type": "single_bank",
+      "difficulty": "medium",
+      "banks": ["CREDIT"],
+      "question": "What was Thai Credit Bank's total loan outstanding at the end of 2025?",
+      "expected_answer": "Thai Credit Bank's total loan outstanding at the end of 2025 was 181,865.6 million THB."
+    },
+    {
+      "id": "V07",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank had the highest NPL ratio among all 10 banks in 2025?",
+      "expected_answer": "KKP had the highest NPL ratio among all 10 banks in 2025 at 4.3%."
+    },
+    {
+      "id": "V08",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank reported the highest net profit in 2025?",
+      "expected_answer": "KBANK reported the highest net profit in 2025 at 49,565 million THB."
+    },
+    {
+      "id": "V09",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank had the lowest cost-to-income ratio in 2025?",
+      "expected_answer": "KTB had the lowest cost-to-income ratio in 2025 at 40.3%."
+    },
+    {
+      "id": "V10",
+      "type": "cross_bank",
+      "difficulty": "medium",
+      "banks": ["BBL", "KBANK"],
+      "question": "How does BBL's return on equity (ROE) compare to KBANK's ROE in 2025? Which was higher and by how much?",
+      "expected_answer": "KBANK had the higher ROE in 2025 at 8.62%, compared to BBL's 8.07%. KBANK outperformed BBL by 55 basis points (0.55 percentage points)."
+    },
+    {
+      "id": "V11",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank had the lowest loan growth rate in 2025?",
+      "expected_answer": "KKP had the lowest loan growth rate in 2025 at -6.7%, meaning its loan portfolio contracted during the year."
+    },
+    {
+      "id": "V12",
+      "type": "trend",
+      "difficulty": "medium",
+      "banks": ["KTB"],
+      "question": "How did KTB's net interest margin (NIM) change from 2024 to 2025? Did it improve or decline?",
+      "expected_answer": "KTB's NIM declined from 3.29% in 2024 to 2.82% in 2025, a decrease of 47 basis points"
+    },
+    {
+      "id": "V13",
+      "type": "trend",
+      "difficulty": "medium",
+      "banks": ["BAY"],
+      "question": "Did BAY's NPL ratio improve or worsen from 2024 to 2025? By how many basis points?",
+      "expected_answer": "BAY's NPL ratio slightly worsened from 3.23% in 2024 to 3.26% in 2025, deteriorating by 3 basis points."
+    },
+    {
+      "id": "V14",
+      "type": "regulatory",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "CREDIT", "KKP"],
+      "question": "Which banks mentioned the BOT policy rate cut as a key factor affecting net interest margin in 2025?",
+      "expected_answer": "KBANK, KTB, SCBX, TTB, TISCO, BAY, CREDIT, and KKP mentioned the BOT policy rate cut as a key factor affecting their net interest margin in 2025. BBL and LHFG did not explicitly highlight this factor."
+    },
+    {
+      "id": "V15",
+      "type": "regulatory",
+      "difficulty": "medium",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which banks highlighted digital banking or digital transformation as a key strategic priority in their 2025 annual report?",
+      "expected_answer": "All 10 banks — BBL, KBANK, KTB, SCBX, TTB, TISCO, BAY, LHFG, CREDIT, and KKP — highlighted digital banking or digital transformation as a key strategic priority in their 2025 annual reports."
+    }
+  ],
+
+  "test": [
+    {
+      "id": "T01",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["SCBX"],
+      "question": "What were SCBX's total assets at the end of 2025?",
+      "expected_answer": "SCBX's total assets were 3,651 billion THB at the end of 2025."
+    },
+    {
+      "id": "T02",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["BAY"],
+      "question": "What was BAY's return on assets (ROA) in 2025?",
+      "expected_answer": "BAY's return on assets (ROA) was 1.21% in 2025."
+    },
+    {
+      "id": "T03",
+      "type": "single_bank",
+      "difficulty": "medium",
+      "banks": ["KTB"],
+      "question": "What was KTB's NPL coverage ratio at the end of 2025?",
+      "expected_answer": "KTB's NPL coverage ratio was 203.6% at the end of 2025."
+    },
+    {
+      "id": "T04",
+      "type": "single_bank",
+      "difficulty": "easy",
+      "banks": ["KKP"],
+      "question": "What was KKP's Capital Adequacy Ratio (CAR) as of December 31, 2025?",
+      "expected_answer": "KKP's Capital Adequacy Ratio (CAR) was 16.43% as of December 31, 2025."
+    },
+    {
+      "id": "T05",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank had the highest Capital Adequacy Ratio (CAR) among all 10 banks in 2025?",
+      "expected_answer": "KTB had the highest Capital Adequacy Ratio (CAR) among all 10 banks in 2025 at 22.12%."
+    },
+    {
+      "id": "T06",
+      "type": "cross_bank",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which bank had the lowest NPL ratio among all 10 banks in 2025?",
+      "expected_answer": "TISCO had the lowest NPL ratio among all 10 banks in 2025 at 2.28%."
+    },
+    {
+      "id": "T07",
+      "type": "cross_bank",
+      "difficulty": "medium",
+      "banks": ["TTB", "TISCO"],
+      "question": "Compare the net interest margin (NIM) of TTB and TISCO for 2025. Which bank had the higher NIM and by how much?",
+      "expected_answer": "TISCO had the higher NIM in 2025 at 4.82%, compared to TTB's 3.04%. TISCO outperformed TTB by 1.78%."
+    },
+    {
+      "id": "T08",
+      "type": "trend",
+      "difficulty": "medium",
+      "banks": ["SCBX"],
+      "question": "How did SCBX's total operating income change from 2024 to 2025? Did it grow or decline?",
+      "expected_answer": "SCBX's total operating income slightly declined by 0.5%, falling from 172.4 billion THB in 2024 to 171.6 billion THB in 2025."
+    },
+    {
+      "id": "T09",
+      "type": "trend",
+      "difficulty": "medium",
+      "banks": ["BBL"],
+      "question": "Did BBL's cost-to-income ratio improve or worsen from 2024 to 2025?",
+      "expected_answer": "BBL's cost-to-income ratio worsened slightly from 48.0% in 2024 to 48.4% in 2025, an increase of 0.4%."
+    },
+    {
+      "id": "T10",
+      "type": "regulatory",
+      "difficulty": "hard",
+      "banks": ["BBL", "KBANK", "KTB", "SCBX", "TTB", "TISCO", "BAY", "LHFG", "CREDIT", "KKP"],
+      "question": "Which banks mentioned household debt quality as a key credit risk concern in their 2025 annual report?",
+      "expected_answer": "All 10 banks — BBL, KBANK, KTB, SCBX, TTB, TISCO, BAY, LHFG, CREDIT, and KKP — mentioned household debt quality as a key credit risk concern in their 2025 annual reports."
+    }
+  ]
+}
