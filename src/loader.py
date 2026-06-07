@@ -90,39 +90,16 @@ def _format_table(table_data: list[list]) -> str:
 
 def _extract_page_text(page) -> str:
     """
-    Extract text from one PDF page.
+    Extract text from one PDF page using plain text mode.
 
-    Strategy:
-    - Always extract plain text (captures headers, footnotes, paragraphs).
-    - If the page has tables (detected via page.find_tables()), also extract
-      them as structured "metric | year: value" strings and append them.
-    - The structured block lets the LLM match year-value pairs precisely,
-      while the plain text preserves surrounding context.
-
-    Falls back to plain text only if PyMuPDF < 1.23 (no find_tables support).
+    find_tables() was tested but misreads shaded/colored column layouts
+    common in Thai bank 56-1 reports (e.g. KBANK's highlighted 2025 column
+    causes PyMuPDF to split values across orphan rows). Plain text extraction
+    preserves the left-to-right reading order that LLMs handle well:
+        "Return on average equity (ROE) 6 8.62% 9.13% 8.29% 7.38% 8.44%"
+    The LLM resolves year mapping from the header line in the same chunk.
     """
-    plain_text = page.get_text("text")
-
-    try:
-        table_finder = page.find_tables()
-        if not table_finder.tables:
-            return plain_text
-
-        structured_parts = []
-        for table in table_finder.tables:
-            formatted = _format_table(table.extract())
-            if formatted.strip():
-                structured_parts.append(formatted)
-
-        if not structured_parts:
-            return plain_text
-
-        structured_block = "\n\n[STRUCTURED TABLES]\n" + "\n\n".join(structured_parts)
-        return plain_text + structured_block
-
-    except AttributeError:
-        # page.find_tables() not available — PyMuPDF < 1.23
-        return plain_text
+    return page.get_text("text")
 
 
 # ---------------------------------------------------------------------------
