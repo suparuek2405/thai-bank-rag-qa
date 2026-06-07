@@ -11,7 +11,6 @@ Usage (in Colab):
 import os
 import re
 import json
-from pathlib import Path
 from typing import Optional
 
 import fitz  # PyMuPDF
@@ -34,6 +33,99 @@ DEFAULT_OVERLAP    = 100       # characters of overlap between consecutive chunk
 
 
 # ---------------------------------------------------------------------------
+# Table extraction helpers
+# ---------------------------------------------------------------------------
+
+def _format_table(table_data: list[list]) -> str:
+    """
+    Convert a PyMuPDF table (list of rows) into structured readable text.
+
+    Before (plain text extraction):
+        "Return on average equity (ROE) 6 8.62% 9.13% 8.29% 7.38% 8.44%"
+
+    After (structured):
+        "Return on average equity (ROE) | 2025: 8.62% | 2024: 9.13% | 2023: 8.29%"
+
+    Args:
+        table_data: Output of table.extract() — list of rows, each row a list of cells
+
+    Returns:
+        Structured string, one metric per line
+    """
+    if not table_data or len(table_data) < 2:
+        return ""
+
+    # Clean None values and strip whitespace
+    cleaned = [
+        [str(cell).strip() if cell is not None else "" for cell in row]
+        for row in table_data
+    ]
+
+    # Detect header row: first row with at least 2 non-empty cells
+    headers = cleaned[0]
+    data_rows = cleaned[1:]
+
+    lines = []
+    for row in data_rows:
+        if not any(cell for cell in row):   # skip fully empty rows
+            continue
+
+        metric = row[0] if row else ""
+        parts = [metric] if metric else []
+
+        for i, val in enumerate(row[1:], start=1):
+            if not val:
+                continue
+            header = headers[i] if i < len(headers) else ""
+            if header:
+                parts.append(f"{header}: {val}")
+            else:
+                parts.append(val)
+
+        if parts:
+            lines.append(" | ".join(parts))
+
+    return "\n".join(lines)
+
+
+def _extract_page_text(page) -> str:
+    """
+    Extract text from one PDF page.
+
+    Strategy:
+    - Always extract plain text (captures headers, footnotes, paragraphs).
+    - If the page has tables (detected via page.find_tables()), also extract
+      them as structured "metric | year: value" strings and append them.
+    - The structured block lets the LLM match year-value pairs precisely,
+      while the plain text preserves surrounding context.
+
+    Falls back to plain text only if PyMuPDF < 1.23 (no find_tables support).
+    """
+    plain_text = page.get_text("text")
+
+    try:
+        table_finder = page.find_tables()
+        if not table_finder.tables:
+            return plain_text
+
+        structured_parts = []
+        for table in table_finder.tables:
+            formatted = _format_table(table.extract())
+            if formatted.strip():
+                structured_parts.append(formatted)
+
+        if not structured_parts:
+            return plain_text
+
+        structured_block = "\n\n[STRUCTURED TABLES]\n" + "\n\n".join(structured_parts)
+        return plain_text + structured_block
+
+    except AttributeError:
+        # page.find_tables() not available — PyMuPDF < 1.23
+        return plain_text
+
+
+# ---------------------------------------------------------------------------
 # Step 1: Load a single PDF
 # ---------------------------------------------------------------------------
 
@@ -43,7 +135,7 @@ def load_bank_pdf(bank_name: str, pdf_dir: str) -> list[dict]:
 
     Args:
         bank_name: Bank ticker, e.g. "KBANK"
-        pdf_dir:   Directory containing PDFs, e.g. "/content/drive/MyDrive/.../data/raw"
+        pdf_dir:   Directory containing PDFs
 
     Returns:
         List of page dicts:
@@ -51,7 +143,7 @@ def load_bank_pdf(bank_name: str, pdf_dir: str) -> list[dict]:
                 "bank_name":    "KBANK",
                 "source_file":  "KBANK_56-1_2025.pdf",
                 "page_number":  int,         # 1-indexed
-                "text":         str,         # raw extracted text for this page
+                "text":         str,         # plain text + structured tables
                 "char_count":   int
             }
     """
@@ -69,16 +161,16 @@ def load_bank_pdf(bank_name: str, pdf_dir: str) -> list[dict]:
 
     for page_num in range(len(doc)):
         page = doc[page_num]
-        text = page.get_text("text")  # plain text extraction
+        text = _extract_page_text(page)
 
-        # Skip pages with very little text (likely images/covers)
+        # Skip pages with very little text (likely image-only covers)
         if len(text.strip()) < 50:
             continue
 
         pages.append({
             "bank_name":   bank_name,
             "source_file": filename,
-            "page_number": page_num + 1,   # 1-indexed for human readability
+            "page_number": page_num + 1,
             "text":        text,
             "char_count":  len(text)
         })
@@ -90,13 +182,6 @@ def load_bank_pdf(bank_name: str, pdf_dir: str) -> list[dict]:
 def load_all_banks(pdf_dir: str, banks: list[str] = BANKS) -> dict[str, list[dict]]:
     """
     Load PDFs for all banks. Returns dict keyed by bank ticker.
-
-    Args:
-        pdf_dir: Path to directory containing all PDFs
-        banks:   List of bank tickers to load
-
-    Returns:
-        {"KBANK": [page_dict, ...], "BBL": [...], ...}
     """
     all_pages = {}
     failed = []
@@ -124,7 +209,7 @@ def load_all_banks(pdf_dir: str, banks: list[str] = BANKS) -> dict[str, list[dic
 # ---------------------------------------------------------------------------
 
 def inspect_page(page: dict, n_chars: int = 500) -> None:
-    """Print a preview of a page to check text extraction quality."""
+    """Print a preview of a page to check extraction quality."""
     print(f"Bank: {page['bank_name']} | Page: {page['page_number']} | "
           f"Chars: {page['char_count']:,}")
     print("-" * 60)
@@ -133,18 +218,13 @@ def inspect_page(page: dict, n_chars: int = 500) -> None:
 
 
 def extraction_stats(all_pages: dict) -> dict:
-    """
-    Summarise extraction quality across all banks.
-
-    Returns per-bank stats:
-        {bank: {"total_pages": int, "total_chars": int, "avg_chars_per_page": float}}
-    """
+    """Summarise extraction quality across all banks."""
     stats = {}
     for bank, pages in all_pages.items():
         total_chars = sum(p["char_count"] for p in pages)
         stats[bank] = {
-            "total_pages":       len(pages),
-            "total_chars":       total_chars,
+            "total_pages":        len(pages),
+            "total_chars":        total_chars,
             "avg_chars_per_page": round(total_chars / len(pages), 0) if pages else 0
         }
     return stats
@@ -156,11 +236,8 @@ def extraction_stats(all_pages: dict) -> dict:
 
 def _clean_text(text: str) -> str:
     """Basic cleaning: collapse excessive whitespace, normalise newlines."""
-    # Replace multiple blank lines with a single blank line
     text = re.sub(r"\n{3,}", "\n\n", text)
-    # Replace non-breaking spaces and other odd whitespace
     text = text.replace("\xa0", " ").replace("\t", " ")
-    # Collapse multiple spaces into one
     text = re.sub(r"  +", " ", text)
     return text.strip()
 
@@ -171,26 +248,16 @@ def chunk_page(
     overlap: int = DEFAULT_OVERLAP
 ) -> list[dict]:
     """
-    Split one page's text into overlapping chunks.
-
-    Each chunk carries full metadata so it can be stored independently
-    in the vector store.
+    Split one page's text into overlapping chunks with full metadata.
 
     Args:
         page:       Page dict from load_bank_pdf()
         chunk_size: Target chunk length in characters
-        overlap:    Number of characters to repeat at chunk boundaries
+        overlap:    Characters to repeat at chunk boundaries
 
     Returns:
-        List of chunk dicts:
-            {
-                "bank_name":   str,
-                "source_file": str,
-                "page_number": int,
-                "chunk_index": int,   # position within this page
-                "text":        str,
-                "char_count":  int
-            }
+        List of chunk dicts with bank_name, source_file, page_number,
+        chunk_index, text, char_count.
     """
     text = _clean_text(page["text"])
     if not text:
@@ -203,16 +270,15 @@ def chunk_page(
     while start < len(text):
         end = start + chunk_size
 
-        # Try to end at a sentence boundary to avoid cutting mid-sentence
+        # Try to break at a sentence boundary
         if end < len(text):
-            # Look for ". " or ".\n" within the last 100 chars of the window
             boundary = text.rfind(". ", start, end)
             if boundary != -1 and boundary > start + chunk_size // 2:
-                end = boundary + 1  # include the period
+                end = boundary + 1
 
         chunk_text = text[start:end].strip()
 
-        if len(chunk_text) > 20:  # ignore tiny trailing chunks
+        if len(chunk_text) > 20:
             chunks.append({
                 "bank_name":   page["bank_name"],
                 "source_file": page["source_file"],
@@ -233,17 +299,7 @@ def chunk_documents(
     chunk_size: int = DEFAULT_CHUNK_SIZE,
     overlap: int = DEFAULT_OVERLAP
 ) -> list[dict]:
-    """
-    Chunk all pages across all banks into a flat list of chunk dicts.
-
-    Args:
-        all_pages:  Output of load_all_banks()
-        chunk_size: Characters per chunk
-        overlap:    Characters of overlap
-
-    Returns:
-        Flat list of all chunk dicts, ready for embedding.
-    """
+    """Chunk all pages across all banks into a flat list of chunk dicts."""
     all_chunks = []
 
     for bank, pages in all_pages.items():
@@ -251,8 +307,9 @@ def chunk_documents(
         for page in pages:
             bank_chunks.extend(chunk_page(page, chunk_size, overlap))
 
+        avg = len(bank_chunks) // len(pages) if pages else 0
         print(f"  [{bank}] {len(pages)} pages → {len(bank_chunks)} chunks "
-              f"(avg {len(bank_chunks) // len(pages) if pages else 0} chunks/page)")
+              f"(avg {avg} chunks/page)")
         all_chunks.extend(bank_chunks)
 
     print(f"\nTotal: {len(all_chunks)} chunks across {len(all_pages)} banks")
@@ -269,28 +326,17 @@ def save_chunks(
     chunk_size: int,
     overlap: int
 ) -> str:
-    """
-    Save chunks to JSON with config embedded in filename.
-
-    Args:
-        chunks:     List of chunk dicts
-        output_dir: Directory to save into (e.g. "data/processed")
-        chunk_size: Used in filename for traceability
-        overlap:    Used in filename for traceability
-
-    Returns:
-        Path to the saved file
-    """
+    """Save chunks to JSON with config embedded in filename."""
     os.makedirs(output_dir, exist_ok=True)
     filename = f"chunks_c{chunk_size}_o{overlap}.json"
     output_path = os.path.join(output_dir, filename)
 
     payload = {
         "config": {
-            "chunk_size": chunk_size,
-            "overlap":    overlap,
+            "chunk_size":   chunk_size,
+            "overlap":      overlap,
             "total_chunks": len(chunks),
-            "banks": sorted(set(c["bank_name"] for c in chunks))
+            "banks":        sorted(set(c["bank_name"] for c in chunks))
         },
         "chunks": chunks
     }
@@ -304,19 +350,14 @@ def save_chunks(
 
 
 def load_chunks(filepath: str) -> tuple[list[dict], dict]:
-    """
-    Load chunks from a previously saved JSON file.
-
-    Returns:
-        (chunks, config) tuple
-    """
+    """Load chunks from a previously saved JSON file."""
     with open(filepath, "r", encoding="utf-8") as f:
         payload = json.load(f)
     return payload["chunks"], payload["config"]
 
 
 # ---------------------------------------------------------------------------
-# Convenience: process everything in one call
+# Convenience: full pipeline in one call
 # ---------------------------------------------------------------------------
 
 def process_all_banks(
@@ -326,19 +367,7 @@ def process_all_banks(
     overlap: int = DEFAULT_OVERLAP,
     banks: list[str] = BANKS
 ) -> tuple[list[dict], str]:
-    """
-    Full pipeline: load PDFs → chunk → save.
-
-    Args:
-        pdf_dir:    Path to PDFs (Google Drive)
-        output_dir: Path to save chunks JSON
-        chunk_size: Characters per chunk
-        overlap:    Characters of overlap
-        banks:      List of bank tickers
-
-    Returns:
-        (chunks, saved_filepath)
-    """
+    """Full pipeline: load PDFs → chunk → save."""
     print(f"Loading PDFs from: {pdf_dir}")
     print(f"Config: chunk_size={chunk_size}, overlap={overlap}\n")
 
