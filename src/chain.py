@@ -98,7 +98,7 @@ def build_llm(api_key: str, model: str = "gemini-2.5-flash") -> ChatGoogleGenera
     return ChatGoogleGenerativeAI(
         model=model,
         temperature=0,        # deterministic — financial Q&A needs consistency
-        max_output_tokens=512
+        max_output_tokens=1024
     )
 
 
