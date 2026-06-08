@@ -15,7 +15,7 @@ import re
 from typing import Optional
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from src.embedder import query as retriever_query
 
 
