@@ -12,6 +12,7 @@ Usage (in Colab):
 
 import os
 import re
+import time
 from typing import Optional
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -184,26 +185,32 @@ def run_eval_questions(
     questions: list[dict],
     collection,
     llm,
-    top_k: int = 10
+    top_k: int = 10,
+    sleep_secs: float = 4.0
 ) -> list[dict]:
     """
     Run the RAG pipeline on a list of eval question dicts.
 
     Args:
-        questions:  List of question dicts from eval_questions.json
-                    Each must have: id, question, banks, expected_answer
-        collection: ChromaDB collection
-        llm:        Gemini LLM
-        top_k:      Chunks to retrieve per question
+        questions:   List of question dicts from eval_questions.json
+                     Each must have: id, question, banks, expected_answer
+        collection:  ChromaDB collection
+        llm:         Gemini LLM
+        top_k:       Chunks to retrieve per question
+        sleep_secs:  Seconds to wait between API calls (avoids RPM rate limits)
 
     Returns:
         List of result dicts with question, expected_answer, answer, mode
     """
     results = []
 
-    for q in questions:
+    for i, q in enumerate(questions):
         # Single-bank mode if only one bank listed
         bank = q["banks"][0] if len(q["banks"]) == 1 else None
+
+        # Rate-limit buffer — free tier is 15 RPM; sleep between calls
+        if i > 0:
+            time.sleep(sleep_secs)
 
         result = ask(
             question=q["question"],
