@@ -83,9 +83,9 @@ def format_context(results: list[dict]) -> str:
 # Build LLM
 # ---------------------------------------------------------------------------
 
-def build_llm(api_key: str, model: str = "gemini-2.0-flash") -> ChatGoogleGenerativeAI:
+def build_llm(api_key: str, model: str = "gemini-2.5-flash") -> ChatGoogleGenerativeAI:
     """
-    Initialise Gemini 2.0 Flash via LangChain.
+    Initialise Gemini 2.5 Flash via LangChain.
 
     Args:
         api_key: Google AI Studio API key
