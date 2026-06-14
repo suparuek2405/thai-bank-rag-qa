@@ -163,9 +163,9 @@ Place bank PDFs in `data/raw/` as `{BANK}_56-1_2025.pdf`, then run NB01 through 
 ## Author
 
 **Suparuek Wattananupan**
-Data Scientist · Bangkok, Thailand
+Data Scientist · Banking · Bangkok, Thailand
 
-Specializing in NLP, financial data, and applied ML for the banking sector.
+Specializing in wealth analytics, deep learning, and financial ML.
 
-[![GitHub](https://img.shields.io/badge/GitHub-natsuparuek-black?logo=github)](https://github.com/suparuek2405/thai-bank-rag-qa)
+[![GitHub](https://img.shields.io/badge/GitHub-suparuek2405-black?logo=github)](https://github.com/suparuek2405)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Suparuek%20Wattananupan-blue?logo=linkedin)](https://www.linkedin.com/in/suparuek-wattananupan-7509aa181/)
