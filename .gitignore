@@ -9,10 +9,9 @@ dist/
 build/
 *.egg
 
-# Jupyter Notebooks
+# Jupyter Notebooks — upload manually via GitHub web, do not git push
 .ipynb_checkpoints/
 *.ipynb
-notebooks/
 
 # Virtual environments
 .env
