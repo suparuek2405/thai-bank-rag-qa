@@ -57,7 +57,7 @@
       "difficulty": "medium",
       "banks": ["CREDIT"],
       "question": "What was Thai Credit Bank's total loan outstanding at the end of 2025?",
-      "expected_answer": "Thai Credit Bank's total loan outstanding at the end of 2025 was 181,865.6 million THB."
+      "expected_answer": "Thai Credit Bank's total loan outstanding at the end of 2025 was 178,136 million THB."
     },
     {
       "id": "V07",
