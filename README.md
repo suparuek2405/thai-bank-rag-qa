@@ -64,7 +64,7 @@ Financial ratio tables come out of PyMuPDF as plain left-to-right text. Chunk bo
 
 All 27,813 chunks were embedded with `sentence-transformers/all-MiniLM-L6-v2` (384-d, local, no API cost) and stored in ChromaDB with `bank_name`, `source_file`, `page_number`, and `chunk_index` as metadata. A UMAP projection of 2,000 sampled embeddings shows that chunks cluster by financial topic across banks rather than by which bank they came from. NPL chunks from KTB and BBL land near each other; NIM chunks from all 10 banks form their own neighborhood.
 
-![UMAP of chunk embeddings colored by bank](https://raw.githubusercontent.com/natsuparuek/thai-bank-rag-qa/main/results/figures/umap_embeddings.png)
+![UMAP of chunk embeddings colored by bank](https://raw.githubusercontent.com/suparuek2405/thai-bank-rag-qa/main/results/figures/umap_embeddings.png)
 
 This means cross-bank retrieval works on embedding similarity alone, but single-bank queries need a metadata filter on `bank_name`. Without it, a question about KTB's NIM will pull the most similar text from whichever bank has the closest embedding, which may not be KTB.
 
@@ -123,7 +123,7 @@ The baseline (chunk=512, top_k=10) scored 0.74 faithfulness. Doubling retrieval 
 
 ## Quickstart
 
-    git clone https://github.com/natsuparuek/thai-bank-rag-qa
+    git clone https://github.com/suparuek2405/thai-bank-rag-qa
     cd thai-bank-rag-qa
     pip install -r requirements.txt
 
@@ -159,5 +159,5 @@ Data Scientist · Bangkok, Thailand
 
 Specializing in NLP, financial data, and applied ML for the banking sector.
 
-[![GitHub](https://img.shields.io/badge/GitHub-natsuparuek-black?logo=github)](https://github.com/natsuparuek/thai-bank-rag-qa)
+[![GitHub](https://img.shields.io/badge/GitHub-natsuparuek-black?logo=github)](https://github.com/suparuek2405/thai-bank-rag-qa)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Suparuek%20Wattananupan-blue?logo=linkedin)](https://www.linkedin.com/in/suparuek-wattananupan-7509aa181/)
