@@ -16,6 +16,8 @@ I built a RAG pipeline over FY2025 56-1 One Reports for 10 Thai commercial banks
 
 **Best result: chunk=512, top_k=10, faithfulness 0.7357 on the validation set (0.4935 on held-out test).**
 
+![RAG Pipeline Workflow](https://raw.githubusercontent.com/suparuek2405/thai-bank-rag-qa/main/results/figures/rag_workflow.svg)
+
 ---
 
 ## Results
