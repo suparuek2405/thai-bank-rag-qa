@@ -160,7 +160,7 @@ Place bank PDFs in `data/raw/` as `{BANK}_56-1_2025.pdf`, then run NB01 through 
 
 **Conversational memory.** The pipeline answers one question at a time with no session history. A follow-up like "how does that compare to last year?" has no context to resolve "that." Adding a short conversation buffer would turn the Q&A system into an actual chatbot.
 
-**Production serving.** The pipeline runs in Colab and has no API or UI layer. A Streamlit front-end (NB05, planned) would make it interactive, and wrapping the retrieval and generation logic in a FastAPI endpoint would make it deployable.
+**Production serving.** The pipeline runs in Colab and has no API or UI layer. Wrapping the retrieval and generation logic in a FastAPI endpoint and adding a simple front-end would make it deployable and interactive.
 
 ---
 
