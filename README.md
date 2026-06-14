@@ -90,7 +90,7 @@ The baseline (chunk=512, top_k=10) scored 0.74 faithfulness. Doubling retrieval 
 
 **More context hurts faithfulness.** Increasing top_k from 10 to 20 added more relevant chunks but also more noise. Faithfulness dropped from 0.74 to 0.61. For a domain like financial filings where the LLM needs to stay tightly grounded in specific numbers, retrieval precision matters more than recall at the generation stage.
 
-**Free-tier Gemini needs a concurrency limit.** Running 45 RAGAS evaluation jobs with the default worker setting caused all jobs to stall silently at 0% progress. Setting `RunConfig(max_workers=2, timeout=120)` fixed the stall. Each val config took 10-16 minutes to score. This is a real constraint to plan around for fast evaluation iteration.
+**Gemini 2.5 Flash needs a concurrency limit for RAGAS.** Running 45 evaluation jobs with the default worker setting caused all jobs to stall silently at 0% progress. Setting `RunConfig(max_workers=2, timeout=120)` fixed the stall. Each val config took 10-16 minutes to score. This is a real constraint to plan around for fast evaluation iteration.
 
 ---
 
