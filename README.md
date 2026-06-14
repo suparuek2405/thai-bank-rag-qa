@@ -152,6 +152,14 @@ Place bank PDFs in `data/raw/` as `{BANK}_56-1_2025.pdf`, then run NB01 through 
 
 ---
 
+## References
+
+- Es, S. et al. (2023). **RAGAS: Automated Evaluation of Retrieval Augmented Generation.** arXiv. https://arxiv.org/abs/2309.15217
+- Wang, W. et al. (2020). **MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers.** NeurIPS 2020. https://arxiv.org/abs/2002.10957
+- Lewis, P. et al. (2020). **Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.** NeurIPS 2020. https://arxiv.org/abs/2005.11401
+
+---
+
 ## Author
 
 **Suparuek Wattananupan**
