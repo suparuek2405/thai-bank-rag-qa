@@ -152,6 +152,18 @@ Place bank PDFs in `data/raw/` as `{BANK}_56-1_2025.pdf`, then run NB01 through 
 
 ---
 
+## What's Missing and What Would Improve It
+
+**Section-level metadata.** Every chunk currently carries `bank_name` and `page_number`, but nothing about where in the report it came from. A chunk from the NPL section and a chunk from the governance section look identical to the retriever. Tagging chunks with a `section` field (financial highlights, capital adequacy, risk factors, etc.) would let queries filter by topic and would likely raise context precision above 0.30.
+
+**Guardrails.** The system prompt instructs the model to stay grounded in retrieved context, but there is no explicit refusal layer. A question outside the scope of the annual reports (e.g., stock price predictions) currently gets a generated response rather than a graceful decline. Adding a simple topic classifier or a confidence threshold on retrieval distance would close this gap.
+
+**Conversational memory.** The pipeline answers one question at a time with no session history. A follow-up like "how does that compare to last year?" has no context to resolve "that." Adding a short conversation buffer would turn the Q&A system into an actual chatbot.
+
+**Production serving.** The pipeline runs in Colab and has no API or UI layer. A Streamlit front-end (NB05, planned) would make it interactive, and wrapping the retrieval and generation logic in a FastAPI endpoint would make it deployable.
+
+---
+
 ## References
 
 - Es, S. et al. (2023). **RAGAS: Automated Evaluation of Retrieval Augmented Generation.** arXiv. https://arxiv.org/abs/2309.15217
